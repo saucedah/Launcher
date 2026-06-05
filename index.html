@@ -172,6 +172,25 @@
     opacity: 0.7;
   }
 
+  .actions {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px;
+  }
+  .actions .url { margin-top: 0; flex: 1; min-width: 0; }
+  .copy-btn {
+    flex: none;
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    color: var(--text);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.15); }
+  .copy-btn:active { transform: scale(0.96); }
+  .copy-btn.done { background: var(--status-live-bg); color: var(--status-live-text); border-color: transparent; }
+
   footer {
     margin-top: 36px;
     text-align: center;
@@ -214,38 +233,33 @@
   // ── Edit me ──────────────────────────────────────────────────────────────
   // Add or remove apps here. Set status to: 'live' | 'wip' | 'soon'
   const APPS = [
-    {
-      name: 'Meditate',
-      icon: '🪷',
-      desc: 'Guided meditation & mantras for focus and calm.',
-      url: 'https://saucedah.github.io/meditation/',  // <-- update if your Pages URL differs
-      status: 'live',
-      tint: 'linear-gradient(135deg, rgba(168,85,247,0.10), rgba(56,189,248,0.05))'
-    },
-    {
-      name: 'Workout',
-      icon: '💪',
-      desc: 'AI-built routines tailored to your gym & progress.',
-      url: 'https://workout-8ol.pages.dev/',
-      status: 'live',
-      tint: 'linear-gradient(135deg, rgba(239,68,68,0.10), rgba(245,158,11,0.05))'
-    },
-    {
-      name: 'Notes',
-      icon: '📒',
-      desc: 'Things to remember, things to buy, projects.',
-      url: '',  // <-- paste your Pages URL here once deployed
-      status: 'wip',
-      tint: 'linear-gradient(135deg, rgba(217,119,6,0.10), rgba(13,148,136,0.05))'
-    },
-    {
-      name: 'My Finances',
-      icon: '💰',
-      desc: 'Budget & expense tracking.',
-      url: '',  // <-- paste your Pages URL here once deployed
-      status: 'wip',
-      tint: 'linear-gradient(135deg, rgba(34,197,94,0.10), rgba(56,189,248,0.05))'
-    }
+    { name: 'GPS — My Places', icon: '📍', desc: 'Save & search locations, trips, copy an address for Uber.',
+      url: 'https://gps.saucedah.workers.dev', status: 'live',
+      tint: 'linear-gradient(135deg, rgba(56,189,248,0.12), rgba(37,99,235,0.06))' },
+    { name: 'Lunch Menu', icon: '🍽️', desc: 'Lunch / Dinner / Random, organized by cuisine.',
+      url: 'https://lunch-menu.saucedah.workers.dev', status: 'live',
+      tint: 'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(239,68,68,0.06))' },
+    { name: 'Notes', icon: '📒', desc: 'Things to remember, things to buy, project notes.',
+      url: 'https://notes.saucedah.workers.dev', status: 'live',
+      tint: 'linear-gradient(135deg, rgba(217,119,6,0.12), rgba(13,148,136,0.06))' },
+    { name: 'PhotoText', icon: '🔠', desc: 'OCR a photo into editable text.',
+      url: 'https://phototext.saucedah.workers.dev', status: 'live',
+      tint: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(56,189,248,0.06))' },
+    { name: 'Workout', icon: '💪', desc: 'AI-built routines tailored to your gym & progress.',
+      url: 'https://workout-8ol.pages.dev', status: 'live',
+      tint: 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(245,158,11,0.06))' },
+    { name: 'Transcriber', icon: '🎬', desc: 'YouTube/TikTok link → transcript for Claude.',
+      url: 'https://home-linux.tailca46f1.ts.net', status: 'live',
+      tint: 'linear-gradient(135deg, rgba(244,63,94,0.12), rgba(168,85,247,0.06))' },
+    { name: 'Puente al Alma', icon: '🎙️', desc: 'Bilingual spiritual-awakening podcast site.',
+      url: 'https://puentealalma.pages.dev', status: 'live',
+      tint: 'linear-gradient(135deg, rgba(168,85,247,0.12), rgba(56,189,248,0.06))' },
+    { name: 'Book Builder', icon: '📖', desc: 'Thought → chapter → PDF book. (not deployed yet)',
+      url: '', status: 'wip',
+      tint: 'linear-gradient(135deg, rgba(13,148,136,0.12), rgba(217,119,6,0.06))' },
+    { name: 'Meditation', icon: '🪷', desc: 'Solfeggio, chakra healing, Wim Hof breathing. (not deployed yet)',
+      url: '', status: 'wip',
+      tint: 'linear-gradient(135deg, rgba(168,85,247,0.10), rgba(56,189,248,0.05))' }
     // To add a new app, copy a block above, paste it here, and fill in the fields.
   ];
   // ─────────────────────────────────────────────────────────────────────────
@@ -256,19 +270,27 @@
     soon: 'Coming soon'
   };
 
+  async function copyUrl(url, btn) {
+    try {
+      await navigator.clipboard.writeText(url);
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!'; btn.classList.add('done');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('done'); }, 1400);
+    } catch {
+      // Fallback for non-secure contexts
+      prompt('Copy this URL:', url);
+    }
+  }
+
   function render() {
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
     for (const app of APPS) {
       const hasUrl = !!(app.url && app.status === 'live');
-      const node = document.createElement(hasUrl ? 'a' : 'div');
+      const node = document.createElement('div');
       node.className = 'card' + (hasUrl ? '' : ' disabled');
-      if (hasUrl) {
-        node.href = app.url;
-        node.target = '_blank';
-        node.rel = 'noopener';
-      }
       if (app.tint) node.style.setProperty('--card-tint', app.tint);
+      if (hasUrl) node.addEventListener('click', () => window.open(app.url, '_blank', 'noopener'));
 
       const top = document.createElement('div');
       top.className = 'top';
@@ -295,11 +317,22 @@
       node.appendChild(p);
 
       if (app.url) {
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+
         const u = document.createElement('div');
         u.className = 'url';
         try { u.textContent = new URL(app.url).host; }
         catch { u.textContent = app.url; }
-        node.appendChild(u);
+
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.textContent = 'Copy';
+        btn.addEventListener('click', (e) => { e.stopPropagation(); copyUrl(app.url, btn); });
+
+        actions.appendChild(u);
+        actions.appendChild(btn);
+        node.appendChild(actions);
       }
 
       grid.appendChild(node);
