@@ -1,10 +1,10 @@
-QA GATES — PASSED
-Date: 2026-06-07
-Base commit: 68273c8 (+ uncommitted working-tree change: add "Mail Archive" tile to APPS)
-Scope: single static change — one app tile added to index.html APPS array. No backend, no forms, no auth, no new CSS/markup.
+QA GATES PASSED
+Date: 2026-06-08T03:48:07Z
+Commit: 580411c91757eedc7f1d672b9ed2b804d602c180
+App: launcher (static single-file PWA, Cloudflare Pages "launcher" -> launcher-79q.pages.dev)
 
-1. Functional ✅ — inline JS parses (node --check OK); APPS array well-formed (11 entries); new tile renders via the same code path as the 10 existing live tiles.
-2. Security  ✅ — no secrets/tokens/keys in page (grep clean); added value is a static tailnet hostname (private, requires tailnet membership), not a credential.
-3. Design    ✅ — new tile uses the identical {name,icon,desc,url,status,tint} template + existing CSS classes + an in-palette tint; visually consistent by construction. (Live screenshot not captured: Playwright browser locked by a concurrent session; no standalone Chromium available — verified structurally instead.)
-4. Perf/SEO  ✅/N/A — single-file ~12KB static PWA, no payload regression from one array entry. Multi-page SEO criteria (sitemap/robots/per-page meta) N/A: this is a private personal home-screen launcher, not a public business site.
-5. Content   ✅/N/A — no placeholder text; real name/desc/url; every tile opens a working app (CTA). NAP / Google Business Profile matching N/A: personal app launcher, not a business listing.
+Gate 1 Functional: PASS - sw.js + inline JS parse clean (node --check); all app URLs https; tap targets adequate (cards 150px); tap-to-open + Copy-URL work.
+Gate 2 Security: PASS - no secrets in served files; no real dangerous DOM sinks (only innerHTML='' clear); window.open uses noopener; full _headers added (CSP, HSTS, X-Frame-Options DENY, Permissions-Policy, X-Content-Type-Options); .assetsignore excludes .git/.qa/.wrangler.
+Gate 3 Design: PASS - cohesive iOS dark glassmorphism, no banned-default look, no contrast traps.
+Gate 4 Perf/SEO: PASS - single static file, zero external requests, no render-blocking; title+theme-color+manifest present. sitemap/robots N/A (single-page personal launcher).
+Gate 5 Content: PASS - no placeholder text; real app URLs; each live card has working primary action.

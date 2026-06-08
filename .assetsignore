@@ -1,0 +1,11 @@
+.git/**
+.qa/**
+.wrangler/**
+.gitignore
+.assetsignore
+node_modules/**
+*.log
+.dev.vars
+.DS_Store
+CLAUDE.md
+README.md
