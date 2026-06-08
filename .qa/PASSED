@@ -1,0 +1,10 @@
+QA GATES — PASSED
+Date: 2026-06-07
+Base commit: 68273c8 (+ uncommitted working-tree change: add "Mail Archive" tile to APPS)
+Scope: single static change — one app tile added to index.html APPS array. No backend, no forms, no auth, no new CSS/markup.
+
+1. Functional ✅ — inline JS parses (node --check OK); APPS array well-formed (11 entries); new tile renders via the same code path as the 10 existing live tiles.
+2. Security  ✅ — no secrets/tokens/keys in page (grep clean); added value is a static tailnet hostname (private, requires tailnet membership), not a credential.
+3. Design    ✅ — new tile uses the identical {name,icon,desc,url,status,tint} template + existing CSS classes + an in-palette tint; visually consistent by construction. (Live screenshot not captured: Playwright browser locked by a concurrent session; no standalone Chromium available — verified structurally instead.)
+4. Perf/SEO  ✅/N/A — single-file ~12KB static PWA, no payload regression from one array entry. Multi-page SEO criteria (sitemap/robots/per-page meta) N/A: this is a private personal home-screen launcher, not a public business site.
+5. Content   ✅/N/A — no placeholder text; real name/desc/url; every tile opens a working app (CTA). NAP / Google Business Profile matching N/A: personal app launcher, not a business listing.
