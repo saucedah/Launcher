@@ -12,6 +12,10 @@
 <link rel="manifest" href="manifest.json">
 <title>My Apps</title>
 <style>
+  @font-face { font-family: 'Nunito'; font-style: normal; font-weight: 400; font-display: swap; src: url('fonts/nunito-400.woff2') format('woff2'); }
+  @font-face { font-family: 'Nunito'; font-style: normal; font-weight: 600; font-display: swap; src: url('fonts/nunito-600.woff2') format('woff2'); }
+  @font-face { font-family: 'Nunito'; font-style: normal; font-weight: 700; font-display: swap; src: url('fonts/nunito-700.woff2') format('woff2'); }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
@@ -33,7 +37,7 @@
 
   html, body { height: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     background: var(--bg-1);
     color: var(--text);
     min-height: 100vh; min-height: 100dvh;
@@ -56,140 +60,146 @@
 
   header {
     text-align: center;
-    margin-bottom: 36px;
+    margin-bottom: 24px;
   }
   header .glyph {
-    font-size: 44px; display: block; margin-bottom: 8px;
+    font-size: 38px; display: block; margin-bottom: 6px;
   }
   header h1 {
-    font-size: 30px;
+    font-size: 26px;
     font-weight: 700;
     letter-spacing: -0.5px;
   }
   header p {
     color: var(--text-dim);
-    margin-top: 6px;
-    font-size: 14px;
+    margin-top: 5px;
+    font-size: 13px;
   }
 
   .grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 10px;
   }
-  @media (min-width: 600px) {
-    .grid { grid-template-columns: 1fr 1fr; }
+  @media (min-width: 560px)  { .grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (min-width: 820px)  { .grid { grid-template-columns: repeat(5, 1fr); } }
+  @media (min-width: 1040px) { .grid { grid-template-columns: repeat(6, 1fr); } }
+
+  /* iOS-style segmented control for sorting */
+  .controls { display: flex; justify-content: center; margin-bottom: 26px; }
+  .seg {
+    display: inline-flex;
+    background: rgba(118, 118, 128, 0.22);
+    border: 0.5px solid rgba(255, 255, 255, 0.06);
+    border-radius: 11px;
+    padding: 2px;
+    gap: 2px;
   }
-  @media (min-width: 900px) {
-    .grid { grid-template-columns: 1fr 1fr 1fr; }
+  .seg button {
+    appearance: none; -webkit-appearance: none;
+    border: none; background: transparent;
+    color: var(--text-dim);
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    letter-spacing: -0.1px;
+    padding: 6px 18px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .seg button.active {
+    background: rgba(128, 128, 142, 0.6);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    color: #fff;
   }
 
+  /* home-screen tile: squircle icon + label below */
   .card {
     display: flex;
     flex-direction: column;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
+    align-items: center;
+    text-align: center;
+    gap: 9px;
+    padding: 6px 2px 2px;
     text-decoration: none;
     color: inherit;
     cursor: pointer;
-    transition: all 0.18s ease;
     position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    min-height: 150px;
+    -webkit-tap-highlight-color: transparent;
   }
-  .card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--card-tint, transparent);
-    opacity: 0.6;
-    pointer-events: none;
-  }
-  .card > * { position: relative; }
-  .card:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-    background: var(--card-hover);
-  }
-  .card:active { transform: translateY(0); }
-  .card.disabled {
-    cursor: default;
-    opacity: 0.55;
-  }
-  .card.disabled:hover { transform: none; border-color: var(--border); background: var(--card); }
+  .card.disabled { cursor: default; opacity: 0.5; }
 
-  .card .top {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 10px; gap: 10px;
-  }
+  .card .icon-wrap { position: relative; width: 72px; height: 72px; }
   .card .icon {
-    font-size: 32px; line-height: 1;
-    width: 52px; height: 52px;
+    width: 72px; height: 72px;
+    font-size: 44px; line-height: 1;
+    color: #fff;
     display: flex; align-items: center; justify-content: center;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid var(--border);
+    border-radius: 19px;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 1.5px 1px rgba(255, 255, 255, 0.5),
+      inset 0 -5px 9px rgba(0, 0, 0, 0.22),
+      0 9px 20px var(--glow, rgba(0, 0, 0, 0.38));
+    transition: transform 0.15s ease;
+  }
+  .card .icon .glyph {
+    display: flex; align-items: center; justify-content: center;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.34));
+  }
+  .card .icon .glyph svg { display: block; width: 44px; height: 44px; }
+  .card:hover .icon { transform: translateY(-3px); }
+  .card:active .icon { transform: scale(0.9); }
+  .card.disabled:active .icon { transform: none; }
+
+  .card h2 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.1px;
+    line-height: 1.2;
+    color: var(--name-color, var(--text));
+    max-width: 108px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
   }
 
+  /* status chip — non-live tiles only, top-left of the icon */
   .status {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 999px;
+    position: absolute;
+    top: -7px; left: -7px;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.3px; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px;
     white-space: nowrap;
   }
-  .status.live { background: var(--status-live-bg); color: var(--status-live-text); }
+  .status.live { display: none; }
   .status.wip  { background: var(--status-wip-bg);  color: var(--status-wip-text); }
   .status.soon { background: var(--status-soon-bg); color: var(--status-soon-text); }
 
-  .card h2 {
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: -0.2px;
-    margin-bottom: 4px;
-  }
-  .card p {
-    font-size: 13px;
-    color: var(--text-dim);
-    line-height: 1.45;
-    flex: 1;
-  }
-  .card .url {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 12px;
-    font-family: ui-monospace, Menlo, monospace;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    opacity: 0.7;
-  }
-
-  .actions {
-    display: flex; align-items: center; gap: 8px; margin-top: 12px;
-  }
-  .actions .url { margin-top: 0; flex: 1; min-width: 0; }
+  /* copy badge — top-right corner of the icon */
   .copy-btn {
-    flex: none;
+    position: absolute;
+    top: -7px; right: -7px;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
     font-family: inherit; font-size: 12px; font-weight: 600;
     color: var(--text);
-    background: rgba(255,255,255,0.08);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 13px;
-    cursor: pointer;
-    transition: all 0.15s ease;
+    background: rgba(28, 28, 34, 0.85);
+    border: 0.5px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    padding: 0; cursor: pointer;
+    opacity: 0; transform: scale(0.8);
+    transition: opacity 0.15s ease, transform 0.12s ease, background 0.15s ease;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   }
-  .copy-btn:hover { background: rgba(255,255,255,0.15); }
-  .copy-btn:active { transform: scale(0.96); }
-  .copy-btn.done { background: var(--status-live-bg); color: var(--status-live-text); border-color: transparent; }
+  .card:hover .copy-btn { opacity: 1; transform: scale(1); }
+  .copy-btn:hover { background: rgba(255, 255, 255, 0.22); }
+  .copy-btn:active { transform: scale(0.85); }
+  .copy-btn.done { background: var(--status-live-bg); color: var(--status-live-text); border-color: transparent; opacity: 1; transform: scale(1); }
+  .copy-btn svg { display: block; }
+  @media (hover: none) { .copy-btn { opacity: 0.92; transform: scale(1); } }
 
   footer {
     margin-top: 36px;
@@ -222,6 +232,13 @@
     <p>One bookmark, all the things I'm building.</p>
   </header>
 
+  <div class="controls">
+    <div class="seg" id="sort" role="tablist" aria-label="Sort apps">
+      <button data-sort="recent" role="tab">Recent</button>
+      <button data-sort="name" role="tab">A–Z</button>
+    </div>
+  </div>
+
   <div class="grid" id="grid"></div>
 
   <footer>
@@ -232,59 +249,64 @@
 <script>
   // ── Edit me ──────────────────────────────────────────────────────────────
   // Add or remove apps here. Set status to: 'live' | 'wip' | 'soon'
+  // 'added' is the date the app went live (YYYY-MM-DD); drives the "Recent" sort.
+  // Approximate where exact — edit freely. New apps: use today's date.
   const APPS = [
-    { name: 'MY ONE NOTES', icon: '🗒️', desc: 'OneNote-style notes — notebooks, color-coded sections, all block types, search, import/export.',
+    { name: 'Remote Dev', icon: '💻', sym: 'terminal', added: '2026-06-20', desc: 'VS Code + Claude Code in the browser, from anywhere. Password-protected.',
+      url: 'https://home-linux.tailca46f1.ts.net:10000', status: 'live',
+      tint: 'linear-gradient(135deg, rgba(56,189,248,0.14), rgba(99,102,241,0.06))' },
+    { name: 'MY ONE NOTES', icon: '🗒️', sym: 'notebook', added: '2026-06-16', desc: 'OneNote-style notes — notebooks, color-coded sections, all block types, search, import/export.',
       url: 'https://my-one-notes.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(124,58,237,0.14), rgba(91,42,134,0.06))' },
-    { name: 'Voice Dictation', icon: '🎤', desc: 'Tap, talk, copy — voice to text (EN/ES) with AI transcription.',
+    { name: 'Voice Dictation', icon: '🎤', sym: 'mic', added: '2026-06-11', desc: 'Tap, talk, copy — voice to text (EN/ES) with AI transcription.',
       url: 'https://voice-dictation.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(240,169,60,0.14), rgba(22,19,15,0.06))' },
-    { name: 'Sejong — Korean', icon: '🇰🇷', desc: 'Learn Korean: Hangul → A2, audio, reviews. Works offline.',
+    { name: 'Sejong — Korean', icon: '🇰🇷', sym: 'globe', added: '2026-06-11', desc: 'Learn Korean: Hangul → A2, audio, reviews. Works offline.',
       url: 'https://korean.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(43,93,215,0.12), rgba(200,55,45,0.06))' },
-    { name: 'Trainer', icon: '🏋️', desc: 'Clients, schedule, reminders, workouts & package payments.',
+    { name: 'Trainer', icon: '🏋️', sym: 'dumbbell', added: '2026-06-10', desc: 'Clients, schedule, reminders, workouts & package payments.',
       url: 'https://trainer.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(10,132,255,0.12), rgba(0,64,221,0.06))' },
-    { name: 'GPS — My Places', icon: '📍', desc: 'Save & search locations, trips, copy an address for Uber.',
+    { name: 'GPS — My Places', icon: '📍', sym: 'pin', added: '2026-05-18', desc: 'Save & search locations, trips, copy an address for Uber.',
       url: 'https://gps.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(56,189,248,0.12), rgba(37,99,235,0.06))' },
-    { name: 'Lunch Menu', icon: '🍽️', desc: 'Lunch / Dinner / Random, organized by cuisine.',
+    { name: 'Lunch Menu', icon: '🍽️', sym: 'utensils', added: '2026-05-08', desc: 'Lunch / Dinner / Random, organized by cuisine.',
       url: 'https://lunch-menu.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(239,68,68,0.06))' },
-    { name: 'Notes', icon: '📒', desc: 'Things to remember, things to buy, project notes.',
+    { name: 'Notes', icon: '📒', sym: 'list', added: '2026-05-03', desc: 'Things to remember, things to buy, project notes.',
       url: 'https://notes.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(217,119,6,0.12), rgba(13,148,136,0.06))' },
-    { name: 'PhotoText', icon: '🔠', desc: 'OCR a photo into editable text.',
+    { name: 'PhotoText', icon: '🔠', sym: 'scan', added: '2026-05-12', desc: 'OCR a photo into editable text.',
       url: 'https://phototext.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(56,189,248,0.06))' },
-    { name: 'Workout', icon: '💪', desc: 'AI Quick Workout wizard + separate Pedro/Evelyn profiles.',
+    { name: 'Workout', icon: '💪', sym: 'activity', added: '2026-05-15', desc: 'AI Quick Workout wizard + separate Pedro/Evelyn profiles.',
       url: 'https://workout-8ol.pages.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(245,158,11,0.06))' },
-    { name: 'Transcriber', icon: '🎬', desc: 'YouTube/TikTok link → transcript for Claude.',
+    { name: 'Transcriber', icon: '🎬', sym: 'clapper', added: '2026-06-05', desc: 'YouTube/TikTok link → transcript for Claude.',
       url: 'https://home-linux.tailca46f1.ts.net', status: 'live',
       tint: 'linear-gradient(135deg, rgba(244,63,94,0.12), rgba(168,85,247,0.06))' },
-    { name: 'Claude Inbox', icon: '📨', desc: 'Send a link to a Claude Code machine; run /inbox there.',
+    { name: 'Claude Inbox', icon: '📨', sym: 'inbox', added: '2026-06-08', desc: 'Send a link to a Claude Code machine; run /inbox there.',
       url: 'https://claude-inbox.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(108,140,255,0.14), rgba(52,211,153,0.06))' },
-    { name: 'Puente al Alma', icon: '🎙️', desc: 'Bilingual spiritual-awakening podcast site.',
+    { name: 'Puente al Alma', icon: '🎙️', sym: 'podcast', added: '2026-05-30', desc: 'Bilingual spiritual-awakening podcast site.',
       url: 'https://puentealalma.pages.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(168,85,247,0.12), rgba(56,189,248,0.06))' },
-    { name: 'Book Builder', icon: '📖', desc: 'Thought → chapter → PDF book; voice-loaded ChatGPT prompts.',
+    { name: 'Book Builder', icon: '📖', sym: 'book', added: '2026-05-29', desc: 'Thought → chapter → PDF book; voice-loaded ChatGPT prompts.',
       url: 'https://book-builder.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(13,148,136,0.12), rgba(217,119,6,0.06))' },
-    { name: 'Meditation', icon: '🪷', desc: 'Solfeggio, chakra healing, Wim Hof breathing.',
+    { name: 'Meditation', icon: '🪷', sym: 'sparkles', added: '2026-05-21', desc: 'Solfeggio, chakra healing, Wim Hof breathing.',
       url: 'https://meditation-9fz.pages.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(168,85,247,0.10), rgba(56,189,248,0.05))' },
-    { name: 'Mail Archive', icon: '🗂️', desc: 'Scan mail & docs → AI files and indexes them; browse + search. (Needs Tailscale on the phone.)',
+    { name: 'Mail Archive', icon: '🗂️', sym: 'archive', added: '2026-06-10', desc: 'Scan mail & docs → AI files and indexes them; browse + search. (Needs Tailscale on the phone.)',
       url: 'https://home-linux.tailca46f1.ts.net:8443/', status: 'live',
       tint: 'linear-gradient(135deg, rgba(13,148,136,0.12), rgba(99,102,241,0.06))' },
-    { name: 'Template Library', icon: '🎨', desc: '200 business-ready website/app templates — browse by category, pick one to start a project.',
+    { name: 'Template Library', icon: '🎨', sym: 'grid', added: '2026-06-04', desc: '200 business-ready website/app templates — browse by category, pick one to start a project.',
       url: 'https://design-templates.pages.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(244,114,182,0.06))' },
-    { name: 'Stock Swing', icon: '📈', desc: 'Nightly swing-trade ideas: rules find & size them, AI ranks & explains. Paper only.',
+    { name: 'Stock Swing', icon: '📈', sym: 'trending', added: '2026-06-09', desc: 'Nightly swing-trade ideas: rules find & size them, AI ranks & explains. Paper only.',
       url: 'https://stock-swing.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(27,210,154,0.14), rgba(76,141,255,0.06))' },
-    { name: 'CMS Hub', icon: '🗄️', desc: 'Admin panel & client editor for all agency websites. Add clients, manage content blocks, publish live.',
+    { name: 'CMS Hub', icon: '🗄️', sym: 'dashboard', added: '2026-06-09', desc: 'Admin panel & client editor for all agency websites. Add clients, manage content blocks, publish live.',
       url: 'https://cms-hub-xi.vercel.app/admin', status: 'live',
       tint: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(244,63,94,0.06))' }
     // To add a new app, copy a block above, paste it here, and fill in the fields.
@@ -297,76 +319,147 @@
     soon: 'Coming soon'
   };
 
+  // Clean line-icon set (SF-Symbols style) drawn white on each colored squircle.
+  // Each app references one by its `sym` key; falls back to its emoji if unknown.
+  const ICONS = {
+    notebook:  '<path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M16 2v20"/>',
+    mic:       '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
+    globe:     '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    dumbbell:  '<path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/>',
+    pin:       '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+    utensils:  '<path d="M3 2v7c0 1.1.9 2 2 2a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+    list:      '<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/>',
+    scan:      '<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8h8"/><path d="M7 12h10"/><path d="M7 16h6"/>',
+    activity:  '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+    clapper:   '<path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
+    inbox:     '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+    podcast:   '<path d="M16.85 18.58a9 9 0 1 0-9.7 0"/><path d="M8 14a5 5 0 1 1 8 0"/><circle cx="12" cy="11" r="1"/><path d="M13 17a1 1 0 1 0-2 0l.5 4.5a.5.5 0 1 0 1 0Z"/>',
+    book:      '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+    sparkles:  '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
+    archive:   '<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
+    grid:      '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+    trending:  '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+    dashboard: '<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>'
+  };
+
+  // Inline SVGs so the corner action clearly reads as "copy link" (not paste/download).
+  const ICON_COPY = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  const ICON_CHECK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
   async function copyUrl(url, btn) {
     try {
       await navigator.clipboard.writeText(url);
-      const orig = btn.textContent;
-      btn.textContent = 'Copied!'; btn.classList.add('done');
-      setTimeout(() => { btn.textContent = orig; btn.classList.remove('done'); }, 1400);
+      btn.innerHTML = ICON_CHECK; btn.classList.add('done');
+      setTimeout(() => { btn.innerHTML = ICON_COPY; btn.classList.remove('done'); }, 1400);
     } catch {
       // Fallback for non-secure contexts
       prompt('Copy this URL:', url);
     }
   }
 
+  // Bright, per-app name color derived from the first color in its tint gradient,
+  // so each app's name pops in its own hue and stays easy to read on the dark bg.
+  function nameColor(tint) {
+    const m = tint && tint.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (!m) return 'var(--text)';
+    const lighten = c => Math.round(Number(c) + (255 - Number(c)) * 0.55);
+    return `rgb(${lighten(m[1])}, ${lighten(m[2])}, ${lighten(m[3])})`;
+  }
+
+  // Vivid single-hue squircle gradient for the icon — iOS app-icon look.
+  function iconGradient(tint) {
+    const m = tint && tint.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (!m) return 'linear-gradient(160deg, #4b5573, #2a3145)';
+    const r = +m[1], g = +m[2], b = +m[3];
+    const lit = c => Math.min(255, Math.round(c + (255 - c) * 0.30));
+    const drk = c => Math.round(c * 0.70);
+    return `linear-gradient(160deg, rgb(${lit(r)},${lit(g)},${lit(b)}) 0%, rgb(${drk(r)},${drk(g)},${drk(b)}) 100%)`;
+  }
+
+  // First color of the tint, as [r,g,b] — used for the depth tile's colored glow.
+  function tintParts(tint) {
+    const m = tint && tint.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    return m ? [ +m[1], +m[2], +m[3] ] : null;
+  }
+
+  // ── Sorting ──────────────────────────────────────────────────────────────
+  let sortMode = (() => {
+    try { return localStorage.getItem('launcher_sort') || 'recent'; } catch { return 'recent'; }
+  })();
+
+  function sortedApps() {
+    const list = APPS.slice();
+    if (sortMode === 'name') {
+      list.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+    } else {
+      list.sort((a, b) => String(b.added || '').localeCompare(String(a.added || '')));
+    }
+    return list;
+  }
+
   function render() {
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
-    for (const app of APPS) {
+    for (const app of sortedApps()) {
       const hasUrl = !!(app.url && app.status === 'live');
       const node = document.createElement('div');
       node.className = 'card' + (hasUrl ? '' : ' disabled');
-      if (app.tint) node.style.setProperty('--card-tint', app.tint);
+      if (app.tint) node.style.setProperty('--name-color', nameColor(app.tint));
+      node.title = app.desc || app.name;
+      node.setAttribute('aria-label', app.name + (app.desc ? ' — ' + app.desc : ''));
       if (hasUrl) node.addEventListener('click', () => window.open(app.url, '_blank', 'noopener'));
 
-      const top = document.createElement('div');
-      top.className = 'top';
+      const wrap = document.createElement('div');
+      wrap.className = 'icon-wrap';
 
       const icon = document.createElement('div');
       icon.className = 'icon';
-      icon.textContent = app.icon || '🔹';
+      const tp = tintParts(app.tint);
+      if (tp) icon.style.setProperty('--glow', `rgba(${tp[0]}, ${tp[1]}, ${tp[2]}, 0.42)`);
+      icon.style.background = iconGradient(app.tint);
+      const glyph = document.createElement('div');
+      glyph.className = 'glyph';
+      glyph.textContent = app.icon || '🔹';
+      icon.appendChild(glyph);
+      wrap.appendChild(icon);
 
-      const status = document.createElement('span');
-      status.className = 'status ' + (app.status || 'soon');
-      status.textContent = STATUS_LABEL[app.status] || 'Coming soon';
+      if (app.status && app.status !== 'live') {
+        const status = document.createElement('span');
+        status.className = 'status ' + app.status;
+        status.textContent = STATUS_LABEL[app.status] || 'Coming soon';
+        wrap.appendChild(status);
+      }
 
-      top.appendChild(icon);
-      top.appendChild(status);
+      if (app.url) {
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.innerHTML = ICON_COPY;
+        btn.title = 'Copy link';
+        btn.setAttribute('aria-label', 'Copy ' + app.name + ' link');
+        btn.addEventListener('click', (e) => { e.stopPropagation(); copyUrl(app.url, btn); });
+        wrap.appendChild(btn);
+      }
 
       const h2 = document.createElement('h2');
       h2.textContent = app.name;
 
-      const p = document.createElement('p');
-      p.textContent = app.desc || '';
-
-      node.appendChild(top);
+      node.appendChild(wrap);
       node.appendChild(h2);
-      node.appendChild(p);
-
-      if (app.url) {
-        const actions = document.createElement('div');
-        actions.className = 'actions';
-
-        const u = document.createElement('div');
-        u.className = 'url';
-        try { u.textContent = new URL(app.url).host; }
-        catch { u.textContent = app.url; }
-
-        const btn = document.createElement('button');
-        btn.className = 'copy-btn';
-        btn.textContent = 'Copy';
-        btn.addEventListener('click', (e) => { e.stopPropagation(); copyUrl(app.url, btn); });
-
-        actions.appendChild(u);
-        actions.appendChild(btn);
-        node.appendChild(actions);
-      }
-
       grid.appendChild(node);
     }
   }
 
-  render();
+  function setSort(mode) {
+    sortMode = mode;
+    try { localStorage.setItem('launcher_sort', mode); } catch {}
+    document.querySelectorAll('#sort button').forEach(b =>
+      b.classList.toggle('active', b.dataset.sort === mode));
+    render();
+  }
+
+  document.querySelectorAll('#sort button').forEach(b =>
+    b.addEventListener('click', () => setSort(b.dataset.sort)));
+  setSort(sortMode);
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
