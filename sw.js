@@ -1,5 +1,7 @@
-const CACHE = 'launcher-v2';
-const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
+const CACHE = 'launcher-v4';
+const ASSETS = ['./', './index.html', './manifest.json', './icon.svg',
+  './cosmic-hud.css', './cosmic-hud.js',
+  './fonts/nunito-400.woff2', './fonts/nunito-600.woff2', './fonts/nunito-700.woff2'];
 
 // HTML/navigation → network-first (so an updated app list shows immediately when
 // online), falling back to cache offline. Other same-origin assets → cache-first.

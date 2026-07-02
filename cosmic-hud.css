@@ -1,0 +1,100 @@
+/* cosmic-hud.css — tokens + page ambience for the Cosmic HUD kit.
+   Components (cosmic-hud.js) carry their own shadow styles and READ these
+   custom properties, so theming any app = adjusting :root here.
+   Palette matches the matrix dashboard (brand magenta-purple + jarvis cyan). */
+
+:root {
+  /* space background ramp */
+  --hud-bg:       #07060d;
+  --hud-bg-2:     #0b0a14;
+  --hud-bg-deep:  #160f2e;
+
+  /* glass */
+  --hud-panel:        rgba(18, 16, 30, .72);
+  --hud-glass-fill:   rgba(255, 255, 255, .055);
+  --hud-glass-fill-2: rgba(255, 255, 255, .085);
+  --hud-glass-stroke: rgba(255, 255, 255, .12);
+  --hud-glass-hi:     rgba(255, 255, 255, .18);
+  --hud-glass-blur:   20px;
+  --hud-radius:       22px;
+
+  /* neon accents — matrix brand ramp */
+  --hud-brand:    #c026d3;   /* magenta */
+  --hud-brand-2:  #a855f7;   /* purple  */
+  --hud-violet:   #8b5cf6;
+  --hud-glow:     #7c3aed;
+  --hud-cyan:     #22d3ee;
+  --hud-cyan-2:   #67e8f9;
+
+  /* semantic */
+  --hud-ok:   #34d399;
+  --hud-warn: #fbbf24;
+  --hud-crit: #fb7185;
+  --hud-info: var(--hud-cyan);
+
+  /* text */
+  --hud-txt:       #f2f0fb;
+  --hud-txt-dim:   #b7b1d2;
+  --hud-txt-faint: #928cb0;
+
+  /* type */
+  --hud-mono: ui-monospace, "JetBrains Mono", "Cascadia Code", "SF Mono", Menlo, monospace;
+  --hud-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --hud-display: "Outfit", var(--hud-sans);
+
+  /* glow scale */
+  --hud-glow-sm:   0 0 8px  rgba(34, 211, 238, .45);
+  --hud-glow-md:   0 0 18px rgba(139, 92, 246, .55);
+  --hud-glow-lg:   0 0 34px rgba(139, 92, 246, .65), 0 0 12px rgba(34, 211, 238, .5);
+  --hud-glow-text: 0 0 12px rgba(34, 211, 238, .7);
+}
+
+/* ---------- page base ---------- */
+.hud-body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--hud-txt);
+  font-family: var(--hud-sans);
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(120% 80% at 50% -10%, var(--hud-bg-deep) 0%, var(--hud-bg) 55%);
+}
+
+/* ---------- ambient layers (stack under content, z-index 0) ---------- */
+.hud-glowcap {
+  position: fixed; z-index: 0; pointer-events: none;
+  top: -22vh; left: 50%; transform: translateX(-50%);
+  width: 80vw; height: 80vw; max-width: 1000px; max-height: 1000px;
+  background: radial-gradient(circle,
+    rgba(124, 58, 237, .40) 0%, rgba(34, 211, 238, .10) 38%, rgba(7, 6, 13, 0) 70%);
+  filter: blur(22px);
+}
+.hud-gridbg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .35;
+  background-image:
+    linear-gradient(rgba(34, 211, 238, .16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, .16) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 80%);
+}
+.hud-aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.hud-aurora .ab {
+  position: absolute; border-radius: 50%;
+  filter: blur(90px); opacity: .55; mix-blend-mode: screen;
+}
+.hud-aurora .ab1 {
+  width: 46vw; height: 46vw; left: -8vw; top: -10vw;
+  background: radial-gradient(circle, var(--hud-brand) 0%, transparent 70%);
+  animation: hud-drift1 52s ease-in-out infinite;
+}
+.hud-aurora .ab2 {
+  width: 40vw; height: 40vw; right: -6vw; top: -4vw; opacity: .4;
+  background: radial-gradient(circle, var(--hud-cyan) 0%, transparent 70%);
+  animation: hud-drift2 61s ease-in-out infinite;
+}
+@keyframes hud-drift1 { 50% { transform: translate(6vw, 5vh) scale(1.12); } }
+@keyframes hud-drift2 { 50% { transform: translate(-5vw, 7vh) scale(.92); } }
+
+/* content sits above ambience */
+.hud-content { position: relative; z-index: 1; }
