@@ -58,3 +58,16 @@ Goal: put the 16 live apps on saucedah.com (`<app>.saucedah.com`).
 **Decision (Jose, to execute later): CONSOLIDATE** — move the 21 apps INTO the hotmail/domain account, then bind native custom domains.
 **To resume, need:** a deploy/edit API token for the hotmail acct `176b29…` (Workers Scripts + Pages + KV) → redeploy each app there (+ migrate KV/secrets) → bind `<app>.saucedah.com` → update this launcher's URLs + redeploy.
 Excluded from public domain: **mail-archive** (tailnet-only, firm). jellyseerr already on `jellyseerr.saucedah.com` via Tunnel+Access (the template for any self-hosted ones).
+
+## Tile ordering — usage-ranked (2026-08-02, commit 8faae02)
+Default sort is now **Top**: pinned apps first (most-recent pin wins), then a
+recency-weighted open count (`launcher_usage` in localStorage, 30-day half-life),
+then the curated `PRIORITY` array in `index.html`, then newest-first. Recent and
+A-Z are unchanged. Opens are counted on tap but the grid only re-ranks on the
+next visit (or after >60 s in the background) so tiles never move under a finger.
+Pin/unpin = hover badge (desktop), right-click, or 450 ms long-press (touch);
+`launcher_pins` holds the order. Footer "Reset my order" clears both keys.
+Tiles are keyboard-operable (Enter/Space + focus ring). No backend - all local.
+**To re-tune the cold-start order, edit `const PRIORITY = [...]`.**
+QA: 35 Playwright checks (desktop/tablet/iPhone, corrupt-storage, keyboard,
+long-press) green against the live URL; SW cache bumped to launcher-v10.
