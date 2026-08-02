@@ -1,4 +1,4 @@
-const CACHE = 'launcher-v10';
+const CACHE = 'launcher-v11';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg',
   './cosmic-hud.css', './cosmic-hud.js',
   './fonts/nunito-400.woff2', './fonts/nunito-600.woff2', './fonts/nunito-700.woff2'];
