@@ -204,6 +204,76 @@
   .copy-btn svg { display: block; }
   @media (hover: none) { .copy-btn { opacity: 0.92; transform: scale(1); } }
 
+  /* pin badge — top-left corner of the icon (mirrors the copy badge) */
+  .pin-btn {
+    position: absolute;
+    top: -7px; left: -7px;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: inherit;
+    color: var(--text-dim);
+    background: rgba(28, 28, 34, 0.85);
+    border: 0.5px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    padding: 0; cursor: pointer;
+    opacity: 0; transform: scale(0.8);
+    transition: opacity 0.15s ease, transform 0.12s ease, background 0.15s ease, color 0.15s ease;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  .card:hover .pin-btn { opacity: 1; transform: scale(1); }
+  .pin-btn:focus-visible { opacity: 1; transform: scale(1); }
+  .pin-btn:hover { background: rgba(255, 255, 255, 0.22); color: var(--text); }
+  .pin-btn:active { transform: scale(0.85); }
+  .pin-btn.pinned {
+    opacity: 1; transform: scale(1);
+    background: rgba(34, 211, 238, 0.22);
+    color: #67e8f9;
+    border-color: rgba(103, 232, 249, 0.55);
+  }
+  .pin-btn svg { display: block; }
+  /* on touch there is no hover: only pinned tiles keep a visible badge (long-press to pin) */
+  @media (hover: none) { .pin-btn { opacity: 0; transform: scale(1); } .pin-btn.pinned { opacity: 1; } }
+
+  .card:focus-visible { outline: none; }
+  .card:focus-visible .icon {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .card.pressing .icon { transform: scale(0.9); }
+
+  /* caption under the segmented control — explains the "Top" ordering */
+  .hint {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    margin: -18px 0 22px;
+    line-height: 1.4;
+  }
+  .hint[hidden] { display: none; }
+
+  /* toast — pin / unpin confirmation */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: max(env(safe-area-inset-bottom, 18px), 18px);
+    transform: translate(-50%, 14px);
+    background: rgba(28, 28, 34, 0.92);
+    border: 0.5px solid rgba(255, 255, 255, 0.18);
+    color: var(--text);
+    font-size: 13px; font-weight: 600;
+    padding: 9px 16px;
+    border-radius: 999px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  @media (prefers-reduced-motion: reduce) {
+    .toast, .card .icon, .copy-btn, .pin-btn { transition: none; }
+  }
+
   footer {
     margin-top: 36px;
     text-align: center;
@@ -280,6 +350,18 @@
   .card h2 { text-shadow: 0 0 14px rgba(124, 58, 237, .35), 0 1px 6px rgba(0, 0, 0, .6); }
 
   .copy-btn { border-color: rgba(103, 232, 249, .35); }
+  .pin-btn  { border-color: rgba(103, 232, 249, .28); }
+  .pin-btn.pinned { box-shadow: 0 0 14px rgba(34, 211, 238, .35); }
+
+  .hint {
+    font-family: var(--hud-mono, ui-monospace, monospace);
+    font-size: 11px; letter-spacing: .04em; color: #928cb0;
+  }
+  .toast {
+    background: rgba(18, 16, 30, .9);
+    border-color: rgba(103, 232, 249, .3);
+    box-shadow: 0 0 22px rgba(34, 211, 238, .22), 0 8px 26px rgba(0, 0, 0, .5);
+  }
 
   footer {
     font-family: var(--hud-mono, ui-monospace, monospace);
@@ -305,17 +387,21 @@
 
   <div class="controls">
     <div class="seg" id="sort" role="tablist" aria-label="Sort apps">
+      <button data-sort="top" role="tab">Top</button>
       <button data-sort="recent" role="tab">Recent</button>
       <button data-sort="name" role="tab">A–Z</button>
     </div>
   </div>
+  <p class="hint" id="hint" hidden></p>
 
   <div class="grid" id="grid"></div>
 
   <footer>
     Edit your apps list in <code>index.html</code> → <code>const APPS = [&hellip;]</code>
+    <div class="links"><a href="#" id="reset-usage">Reset my order</a></div>
   </footer>
 </div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
   // ── Edit me ──────────────────────────────────────────────────────────────
@@ -461,6 +547,7 @@
   // Inline SVGs so the corner action clearly reads as "copy link" (not paste/download).
   const ICON_COPY = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
   const ICON_CHECK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  const ICON_PIN   = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>';
 
   async function copyUrl(url, btn) {
     try {
@@ -498,19 +585,110 @@
     return m ? [ +m[1], +m[2], +m[3] ] : null;
   }
 
+  // ── Usage tracking + pins (private, this device only) ────────────────────
+  // Opening a tile bumps its counter; "Top" sort floats the apps actually used
+  // most (recency-weighted) to the front. Pinned apps always come first.
+  // Nothing leaves the browser — plain localStorage, no backend.
+  const USAGE_KEY = 'launcher_usage';
+  const PINS_KEY  = 'launcher_pins';
+  const HALF_LIFE_DAYS = 30;   // an open counts half as much after a month
+
+  // Cold-start ordering, used until real usage data exists. Edit freely —
+  // anything not listed falls back to newest-first.
+  const PRIORITY = [
+    'MY ONE NOTES', 'Notes', 'Coach Fit', 'Escriba', 'Dashy', 'Cameras',
+    'Nextcloud', 'Jellyseerr', 'Transcriber', 'GPS — My Places', 'Voice Dictation',
+    'Remote Dev', 'MemoryOS', 'Lunch Menu', 'Redactor', 'Book Creator',
+    'Claude Inbox', 'Mail Archive'
+  ];
+
+  function readJSON(key, fallback) {
+    try {
+      const v = JSON.parse(localStorage.getItem(key) || 'null');
+      return v && typeof v === 'object' ? v : fallback;
+    } catch { return fallback; }
+  }
+  function writeJSON(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+  }
+
+  let usage = readJSON(USAGE_KEY, {});
+  let pins  = readJSON(PINS_KEY, []);
+  if (!Array.isArray(pins)) pins = [];
+  pins = pins.filter(n => typeof n === 'string');
+
+  function recordOpen(name) {
+    const rec = usage[name] && typeof usage[name] === 'object' ? usage[name] : { n: 0, last: 0 };
+    rec.n = (Number(rec.n) || 0) + 1;
+    rec.last = Date.now();
+    usage[name] = rec;
+    writeJSON(USAGE_KEY, usage);
+  }
+
+  // Recency-weighted open count: frequent AND recent beats frequent-but-stale.
+  function usageScore(name) {
+    const rec = usage[name];
+    if (!rec) return 0;
+    const n = Number(rec.n) || 0;
+    if (!n) return 0;
+    const days = Math.max(0, (Date.now() - (Number(rec.last) || 0)) / 86400000);
+    return n * Math.pow(0.5, days / HALF_LIFE_DAYS);
+  }
+
+  function isPinned(name) { return pins.indexOf(name) !== -1; }
+
+  function togglePin(name) {
+    const i = pins.indexOf(name);
+    if (i === -1) pins.unshift(name); else pins.splice(i, 1);
+    writeJSON(PINS_KEY, pins);
+    return i === -1;
+  }
+
   // ── Sorting ──────────────────────────────────────────────────────────────
+  const SORT_MODES = ['top', 'recent', 'name'];
   let sortMode = (() => {
-    try { return localStorage.getItem('launcher_sort') || 'recent'; } catch { return 'recent'; }
+    try {
+      const saved = localStorage.getItem('launcher_sort');
+      return SORT_MODES.indexOf(saved) !== -1 ? saved : 'top';
+    } catch { return 'top'; }
   })();
 
   function sortedApps() {
     const list = APPS.slice();
     if (sortMode === 'name') {
       list.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-    } else {
+    } else if (sortMode === 'recent') {
       list.sort((a, b) => String(b.added || '').localeCompare(String(a.added || '')));
+    } else {
+      const rank = a => {
+        const p = pins.indexOf(a.name);
+        return p === -1 ? Infinity : p;
+      };
+      const seed = a => {
+        const i = PRIORITY.indexOf(a.name);
+        return i === -1 ? Infinity : i;
+      };
+      list.sort((a, b) => {
+        const live = (x) => (x.url && x.status === 'live') ? 0 : 1;
+        if (live(a) !== live(b)) return live(a) - live(b);        // unavailable tiles sink
+        if (rank(a) !== rank(b)) return rank(a) - rank(b);         // pinned first, in pin order
+        const ua = usageScore(a.name), ub = usageScore(b.name);
+        if (ua !== ub) return ub - ua;                             // then what you actually open
+        if (seed(a) !== seed(b)) return seed(a) - seed(b);         // then the curated order
+        return String(b.added || '').localeCompare(String(a.added || ''));
+      });
     }
     return list;
+  }
+
+  // ── Toast ────────────────────────────────────────────────────────────────
+  let toastTimer = null;
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
   }
 
   function render() {
@@ -523,7 +701,15 @@
       if (app.tint) node.style.setProperty('--name-color', nameColor(app.tint));
       node.title = app.desc || app.name;
       node.setAttribute('aria-label', app.name + (app.desc ? ' — ' + app.desc : ''));
-      if (hasUrl) node.addEventListener('click', () => window.open(app.url, '_blank', 'noopener'));
+      if (hasUrl) {
+        node.tabIndex = 0;
+        node.setAttribute('role', 'button');
+        node.addEventListener('click', () => openApp(app));
+        node.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openApp(app); }
+        });
+        attachLongPress(node, app);
+      }
 
       const wrap = document.createElement('div');
       wrap.className = 'icon-wrap';
@@ -556,6 +742,19 @@
         wrap.appendChild(btn);
       }
 
+      // Pin badge sits where the status chip would be — live tiles only, so the
+      // two never collide.
+      if (hasUrl) {
+        const pin = document.createElement('button');
+        pin.className = 'pin-btn' + (isPinned(app.name) ? ' pinned' : '');
+        pin.innerHTML = ICON_PIN;
+        pin.title = isPinned(app.name) ? 'Unpin from top' : 'Pin to top';
+        pin.setAttribute('aria-label', (isPinned(app.name) ? 'Unpin ' : 'Pin ') + app.name);
+        pin.setAttribute('aria-pressed', String(isPinned(app.name)));
+        pin.addEventListener('click', (e) => { e.stopPropagation(); setPin(app.name); });
+        wrap.appendChild(pin);
+      }
+
       const h2 = document.createElement('h2');
       h2.textContent = app.name;
 
@@ -565,17 +764,89 @@
     }
   }
 
+  // Opening counts toward the ranking, but the grid is NOT reshuffled under the
+  // finger that just tapped it — the new order lands on the next visit.
+  function openApp(app) {
+    recordOpen(app.name);
+    window.open(app.url, '_blank', 'noopener');
+  }
+
+  function setPin(name) {
+    const pinned = togglePin(name);
+    toast(pinned ? 'Pinned to top' : 'Unpinned');
+    render();
+  }
+
+  // Touch devices have no hover, so a long-press on the tile toggles its pin.
+  function attachLongPress(node, app) {
+    let timer = null, moved = false;
+    const clear = () => { clearTimeout(timer); timer = null; node.classList.remove('pressing'); };
+    node.addEventListener('touchstart', () => {
+      moved = false;
+      node.classList.add('pressing');
+      timer = setTimeout(() => {
+        timer = null;
+        node.classList.remove('pressing');
+        if (moved) return;
+        if (navigator.vibrate) { try { navigator.vibrate(12); } catch {} }
+        node.dataset.longpress = '1';
+        setPin(app.name);
+      }, 450);
+    }, { passive: true });
+    node.addEventListener('touchmove', () => { moved = true; clear(); }, { passive: true });
+    node.addEventListener('touchend', clear);
+    node.addEventListener('touchcancel', clear);
+    // Swallow the click the browser fires right after a long-press.
+    node.addEventListener('click', (e) => {
+      if (node.dataset.longpress) { delete node.dataset.longpress; e.stopImmediatePropagation(); e.preventDefault(); }
+    }, true);
+    // Desktop equivalent: right-click a tile to pin/unpin.
+    node.addEventListener('contextmenu', (e) => { e.preventDefault(); setPin(app.name); });
+  }
+
   function setSort(mode) {
-    sortMode = mode;
-    try { localStorage.setItem('launcher_sort', mode); } catch {}
-    document.querySelectorAll('#sort button').forEach(b =>
-      b.classList.toggle('active', b.dataset.sort === mode));
+    sortMode = SORT_MODES.indexOf(mode) !== -1 ? mode : 'top';
+    try { localStorage.setItem('launcher_sort', sortMode); } catch {}
+    document.querySelectorAll('#sort button').forEach(b => {
+      const on = b.dataset.sort === sortMode;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', String(on));
+    });
+    const hint = document.getElementById('hint');
+    if (sortMode === 'top') {
+      const used = Object.keys(usage).length;
+      hint.textContent = used
+        ? 'Ordered by what you open most · long-press (or right-click) a tile to pin it'
+        : 'Learning what you use — long-press (or right-click) a tile to pin it to the top';
+      hint.hidden = false;
+    } else {
+      hint.hidden = true;
+    }
     render();
   }
 
   document.querySelectorAll('#sort button').forEach(b =>
     b.addEventListener('click', () => setSort(b.dataset.sort)));
   setSort(sortMode);
+
+  document.getElementById('reset-usage').addEventListener('click', (e) => {
+    e.preventDefault();
+    usage = {}; pins = [];
+    try { localStorage.removeItem(USAGE_KEY); localStorage.removeItem(PINS_KEY); } catch {}
+    toast('Order reset');
+    setSort(sortMode);
+  });
+
+  // Re-rank when you come back to the launcher after being away for a while,
+  // so a session's opens are reflected without the grid moving while in use.
+  let hiddenAt = 0;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (sortMode === 'top' && hiddenAt && Date.now() - hiddenAt > 60000) {
+      usage = readJSON(USAGE_KEY, usage);
+      render();
+    }
+  });
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
