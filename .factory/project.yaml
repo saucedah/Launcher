@@ -1,0 +1,18 @@
+schema_version: '2.0'
+id: launcher
+name: Launcher
+archetypes:
+- general
+owner: jose
+lifecycle: maintained
+repository:
+  remote: https://github.com/saucedah/Launcher.git
+  default_branch: main
+  phi_approved: false
+canonical_path: /home/saucedah/projects/31 launcher
+data_sensitivity: personal
+risk_class: low
+autonomy_tier: 1
+sync_class: local_only
+last_state_update: '2026-08-28T02:20:27Z'
+purpose: launcher — info
