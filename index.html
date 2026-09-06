@@ -427,6 +427,9 @@
     { name: 'Coach Fit — Evelyn', icon: '🏋️', sym: 'dumbbell', added: '2026-08-12', desc: 'Evelyn\'s own copy of Coach Fit, on its own link with her own plan — 7 days, 1,600 kcal, six meals. Separate origin, so her workouts, meals and weigh-ins are hers alone and never touch Jose\'s. Anywhere, no login.',
       url: 'https://evelyn.saucedah.com', status: 'live',
       tint: 'linear-gradient(135deg, rgba(224,75,150,0.16), rgba(255,190,90,0.10))' },
+    { name: 'Voice Diary', icon: '📔', sym: 'mic', added: '2026-09-06', desc: 'One tap, talk, saved forever — a private voice journal. Recordings stay on your phone, transcribed on the home GPU, searchable timeline, PIN lock, export. Anywhere (Tailscale).',
+      url: 'https://home-linux.tailca46f1.ts.net:8446', status: 'live',
+      tint: 'linear-gradient(135deg, rgba(228,87,61,0.16), rgba(255,190,90,0.08))' },
     { name: 'Escriba', icon: '🎙️', sym: 'mic', added: '2026-07-12', desc: 'AI note taker — drop in a Plaud recording or record from your phone. Counts the voices, labels who said what, then writes the summary, action items and mind map. Anywhere (Tailscale).',
       url: 'https://home-linux.tailca46f1.ts.net:8445', status: 'live',
       tint: 'linear-gradient(135deg, rgba(0,122,255,0.16), rgba(175,82,222,0.08))' },
@@ -611,7 +614,7 @@
   // Cold-start ordering, used until real usage data exists. Edit freely —
   // anything not listed falls back to newest-first.
   const PRIORITY = [
-    'MY ONE NOTES', 'Notes', 'Coach Fit', 'Escriba', 'Dashy', 'Cameras',
+    'MY ONE NOTES', 'Notes', 'Coach Fit', 'Voice Diary', 'Escriba', 'Dashy', 'Cameras',
     'Nextcloud', 'Jellyseerr', 'Transcriber', 'GPS — My Places', 'Voice Dictation',
     'Remote Dev', 'Overload', 'MemoryOS', 'Lunch Menu', 'Redactor', 'Book Creator',
     'Claude Inbox', 'Mail Archive'
