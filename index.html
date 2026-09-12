@@ -90,6 +90,18 @@
 
   /* iOS-style segmented control for sorting */
   .controls { display: flex; justify-content: center; margin-bottom: 26px; }
+  .controls-sort { margin-top: -14px; }
+  /* count of retired apps, sitting inside the Retired tab */
+  .seg-count {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 11px; font-weight: 700;
+    background: rgba(255, 255, 255, 0.14);
+    color: inherit;
+  }
+  .seg-count[hidden] { display: none; }
   .seg {
     display: inline-flex;
     background: rgba(118, 118, 128, 0.22);
@@ -180,6 +192,23 @@
   .status.live { display: none; }
   .status.wip  { background: var(--status-wip-bg);  color: var(--status-wip-text); }
   .status.soon { background: var(--status-soon-bg); color: var(--status-soon-text); }
+  .status.retired { background: rgba(118, 118, 128, 0.34); color: var(--text-dim); }
+
+  /* Retired tiles read as archived: desaturated and dimmed, still tappable if
+     the app is actually still up. */
+  .card.retired .icon { filter: grayscale(0.75); }
+  .card.retired .icon-wrap, .card.retired h2 { opacity: 0.62; }
+  .card.retired:hover .icon-wrap, .card.retired:hover h2 { opacity: 0.85; }
+
+  .empty {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.55;
+    margin: 34px auto 10px;
+    max-width: 30em;
+  }
+  .empty[hidden] { display: none; }
 
   /* copy badge — top-right corner of the icon */
   .copy-btn {
@@ -386,6 +415,13 @@
   </header>
 
   <div class="controls">
+    <div class="seg" id="view" role="tablist" aria-label="Which apps to show">
+      <button data-view="active" role="tab">Active</button>
+      <button data-view="retired" role="tab">Retired<span class="seg-count" id="retired-count" hidden></span></button>
+    </div>
+  </div>
+
+  <div class="controls controls-sort">
     <div class="seg" id="sort" role="tablist" aria-label="Sort apps">
       <button data-sort="top" role="tab">Top</button>
       <button data-sort="recent" role="tab">Recent</button>
@@ -395,6 +431,7 @@
   <p class="hint" id="hint" hidden></p>
 
   <div class="grid" id="grid"></div>
+  <p class="empty" id="empty" hidden></p>
 
   <footer>
     Edit your apps list in <code>index.html</code> → <code>const APPS = [&hellip;]</code>
@@ -423,7 +460,7 @@
       tags: ['fitness', 'pwa'] },
     { name: 'MemoryOS', icon: '🏛️', sym: 'brain', added: '2026-07-27', desc: 'Train your memory for real — build palaces from places you know, daily 10-minute sessions (smart reviews, number/name/list drills, 60s sprints), honest ability stats. No accounts, works offline, everything unlocked. Anywhere.',
       url: 'https://memoryos.saucedah.workers.dev', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(88,86,214,0.18), rgba(48,176,199,0.10))' },
+      tint: 'linear-gradient(135deg, rgba(88,86,214,0.18), rgba(48,176,199,0.10))', retired: true },
     { name: 'Coach Fit', icon: '🏋️', sym: 'dumbbell', added: '2026-07-19', desc: 'Your coach\'s workouts and macros in your pocket — log sets with a rest timer, real-person exercise demos, meal tracking against your targets, PRs and progress charts. Foods carry real portion sizes ("1 medium banana"), and it speaks English or Spanish. All data stays on your phone. Anywhere, no login.',
       url: 'https://fitness.saucedah.com', status: 'live',
       tint: 'linear-gradient(135deg, rgba(91,75,224,0.16), rgba(200,240,75,0.10))' },
@@ -441,34 +478,34 @@
       tint: 'linear-gradient(135deg, rgba(34,211,238,0.16), rgba(139,92,246,0.08))' },
     { name: 'SignalScout', icon: '📶', sym: 'wifi', added: '2026-07-12', desc: 'WiFi analyzer — live signal meter, channel interference advice, and a coverage heatmap you build by walking the house. On your network.',
       url: 'http://10.10.10.50:8099', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(52,199,89,0.16), rgba(0,122,255,0.08))' },
+      tint: 'linear-gradient(135deg, rgba(52,199,89,0.16), rgba(0,122,255,0.08))', retired: true },
     { name: 'ScholarBuilder', icon: '🎓', sym: 'book', added: '2026-08-02', desc: 'Scholarship season in one place — track every application and deadline, draft and reuse essay answers, keep each student\'s profile and documents together. Runs entirely on the home box; nothing leaves the house. Home network only.',
       url: 'http://10.10.10.50:3005', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(88,86,214,0.16), rgba(13,148,136,0.08))' },
+      tint: 'linear-gradient(135deg, rgba(88,86,214,0.16), rgba(13,148,136,0.08))', retired: true },
     { name: 'MoneyMap', icon: '💵', sym: 'wallet', added: '2026-07-12', desc: 'Personal finance, entirely on this machine — import a statement and it finds the subscriptions you forgot, the gastos hormiga, and what is actually safe to spend today. Home network only.',
       url: 'http://10.10.10.50:8101', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(52,199,89,0.16), rgba(0,122,255,0.08))' },
+      tint: 'linear-gradient(135deg, rgba(52,199,89,0.16), rgba(0,122,255,0.08))', retired: true },
     { name: 'Redactor', icon: '✒️', sym: 'pen', added: '2026-07-09', desc: 'Artículos, guiones de video, consejos y reflexiones con la IA local — responde unas preguntas y listo. Anywhere.',
       url: 'https://redactor.saucedah.com', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(44,74,158,0.16), rgba(34,211,238,0.08))' },
+      tint: 'linear-gradient(135deg, rgba(44,74,158,0.16), rgba(34,211,238,0.08))', retired: true },
     { name: 'Book Creator', icon: '📖', sym: 'book', added: '2026-07-09', desc: 'AI book generator on your own GPU — questionnaire → concepts → outline → full chapters, live. Fiction, nonfiction, kids, comics. Anywhere (email login).',
       url: 'https://book.saucedah.com', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(139,92,246,0.16), rgba(34,211,238,0.08))' },
+      tint: 'linear-gradient(135deg, rgba(139,92,246,0.16), rgba(34,211,238,0.08))', retired: true },
     { name: 'Agentic OS', icon: '🛸', sym: 'terminal', added: '2026-07-07', desc: 'Mission-control HUD for Claude Code — one-press skill runs, live telemetry, run queue, audit trail, vault. On your network.',
       url: 'http://10.10.10.50:8095', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(139,92,246,0.16), rgba(34,211,238,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(139,92,246,0.16), rgba(34,211,238,0.06))', retired: true },
     { name: 'birdclaw', icon: '🐦', sym: 'archive', added: '2026-07-07', desc: 'Local-first X/Twitter workspace — your archive in SQLite, browse tweets, likes, DMs, follow graph. On your network.',
       url: 'http://10.10.10.50:3200', status: 'live',
       tint: 'linear-gradient(135deg, rgba(56,189,248,0.14), rgba(124,58,237,0.06))' },
     { name: 'OpenCut', icon: '🎞️', sym: 'clapper', added: '2026-07-07', desc: 'Self-hosted web video editor — timeline, cuts, text, export. Footage stays on the LAN. On your network.',
       url: 'http://10.10.10.50:3220', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(167,139,250,0.14), rgba(34,211,238,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(167,139,250,0.14), rgba(34,211,238,0.06))', retired: true },
     { name: 'Cameras', icon: '📹', sym: 'video', added: '2026-07-01', desc: 'Live view, timeline & events for your cameras (Reolink front) with AI search. Runs on Frigate. (Needs Tailscale on the phone.)',
       url: 'https://home-linux.tailca46f1.ts.net:8444/', status: 'live',
     },
     { name: 'Nextcloud', icon: '☁️', sym: 'cloud', added: '2026-07-20', desc: 'Your personal cloud — files, photos & docs synced across every device. On the network: http://10.10.10.100:9080 · away: needs Tailscale.',
       url: 'https://qnap-nas.tailca46f1.ts.net/', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(10,132,255,0.14), rgba(34,211,238,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(10,132,255,0.14), rgba(34,211,238,0.06))', retired: true },
     { name: 'Jellyseerr', icon: '🎬', sym: 'film', added: '2026-06-27', desc: 'Search any movie or show, request it, and it auto-downloads to Plex. Tied to Radarr/Sonarr. On your network.',
       url: 'http://10.10.10.100:5055', status: 'live',
       tint: 'linear-gradient(135deg, rgba(244,114,182,0.14), rgba(168,85,247,0.06))' },
@@ -477,7 +514,7 @@
       tint: 'linear-gradient(135deg, rgba(52,211,153,0.14), rgba(10,132,255,0.06))' },
     { name: 'Remote Dev', icon: '💻', sym: 'terminal', added: '2026-06-20', desc: 'VS Code + Claude Code in the browser, from anywhere. Password-protected.',
       url: 'https://home-linux.tailca46f1.ts.net:10000', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(56,189,248,0.14), rgba(99,102,241,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(56,189,248,0.14), rgba(99,102,241,0.06))', retired: true },
     { name: 'MY ONE NOTES', icon: '🗒️', sym: 'notebook', added: '2026-06-16', desc: 'OneNote-style notes — notebooks, color-coded sections, all block types, search, import/export.',
       url: 'https://my-one-notes.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(124,58,237,0.14), rgba(91,42,134,0.06))' },
@@ -486,7 +523,7 @@
       tint: 'linear-gradient(135deg, rgba(240,169,60,0.14), rgba(22,19,15,0.06))' },
     { name: 'Sejong — Korean', icon: '🇰🇷', sym: 'globe', added: '2026-06-11', desc: 'Learn Korean: Hangul → A2, audio, reviews. Works offline.',
       url: 'https://korean.saucedah.workers.dev', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(43,93,215,0.12), rgba(200,55,45,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(43,93,215,0.12), rgba(200,55,45,0.06))', retired: true },
     { name: 'Trainer', icon: '🏋️', sym: 'dumbbell', added: '2026-06-10', desc: 'Clients, schedule, reminders, workouts & package payments.',
       url: 'https://trainer.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(10,132,255,0.12), rgba(0,64,221,0.06))' },
@@ -495,13 +532,13 @@
       tint: 'linear-gradient(135deg, rgba(56,189,248,0.12), rgba(37,99,235,0.06))' },
     { name: 'Lunch Menu', icon: '🍽️', sym: 'utensils', added: '2026-05-08', desc: 'Lunch / Dinner / Random, organized by cuisine.',
       url: 'https://lunch-menu.saucedah.workers.dev', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(239,68,68,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(239,68,68,0.06))', retired: true },
     { name: 'Notes', icon: '📒', sym: 'list', added: '2026-05-03', desc: 'Things to remember, things to buy, project notes.',
       url: 'https://notes.saucedah.workers.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(217,119,6,0.12), rgba(13,148,136,0.06))' },
     { name: 'PhotoText', icon: '🔠', sym: 'scan', added: '2026-05-12', desc: 'OCR a photo into editable text.',
       url: 'https://phototext.saucedah.workers.dev', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(56,189,248,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(56,189,248,0.06))', retired: true },
     { name: 'Workout', icon: '💪', sym: 'activity', added: '2026-05-15', desc: 'AI Quick Workout wizard + separate Pedro/Evelyn profiles.',
       url: 'https://workout-8ol.pages.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(245,158,11,0.06))' },
@@ -510,13 +547,13 @@
       tint: 'linear-gradient(135deg, rgba(244,63,94,0.12), rgba(168,85,247,0.06))' },
     { name: 'Claude Inbox', icon: '📨', sym: 'inbox', added: '2026-06-08', desc: 'Send a link to a Claude Code machine; run /inbox there.',
       url: 'https://claude-inbox.saucedah.workers.dev', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(108,140,255,0.14), rgba(52,211,153,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(108,140,255,0.14), rgba(52,211,153,0.06))', retired: true },
     { name: 'Puente al Alma', icon: '🎙️', sym: 'podcast', added: '2026-05-30', desc: 'Bilingual spiritual-awakening podcast site.',
       url: 'https://puentealalma.pages.dev', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(168,85,247,0.12), rgba(56,189,248,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(168,85,247,0.12), rgba(56,189,248,0.06))', retired: true },
     { name: 'Book Builder', icon: '📖', sym: 'book', added: '2026-05-29', desc: 'Thought → chapter → PDF book; voice-loaded ChatGPT prompts.',
       url: 'https://book-builder.saucedah.workers.dev', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(13,148,136,0.12), rgba(217,119,6,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(13,148,136,0.12), rgba(217,119,6,0.06))', retired: true },
     { name: 'Meditation', icon: '🪷', sym: 'sparkles', added: '2026-05-21', desc: 'Solfeggio, chakra healing, Wim Hof breathing. Pedro/Evelyn profiles, shareable links.',
       url: 'https://meditation-9fz.pages.dev', status: 'live',
       tint: 'linear-gradient(135deg, rgba(168,85,247,0.10), rgba(56,189,248,0.05))' },
@@ -525,13 +562,13 @@
       tint: 'linear-gradient(135deg, rgba(13,148,136,0.12), rgba(99,102,241,0.06))' },
     { name: 'Template Library', icon: '🎨', sym: 'grid', added: '2026-06-04', desc: '200 business-ready website/app templates — browse by category, pick one to start a project.',
       url: 'https://design-templates.pages.dev', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(244,114,182,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(244,114,182,0.06))', retired: true },
     { name: 'Stock Swing', icon: '📈', sym: 'trending', added: '2026-06-09', desc: 'Nightly swing-trade ideas: rules find & size them, AI ranks & explains. Paper only.',
       url: 'https://stock-swing.saucedah.workers.dev', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(27,210,154,0.14), rgba(76,141,255,0.06))' },
+      tint: 'linear-gradient(135deg, rgba(27,210,154,0.14), rgba(76,141,255,0.06))', retired: true },
     { name: 'CMS Hub', icon: '🗄️', sym: 'dashboard', added: '2026-06-09', desc: 'Admin panel & client editor for all agency websites. Add clients, manage content blocks, publish live.',
       url: 'https://cms-hub-xi.vercel.app/admin', status: 'live',
-      tint: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(244,63,94,0.06))' }
+      tint: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(244,63,94,0.06))', retired: true }
     // To add a new app, copy a block above, paste it here, and fill in the fields.
   ];
   // ─────────────────────────────────────────────────────────────────────────
@@ -665,6 +702,14 @@
     return i === -1;
   }
 
+  // ── Views: Active / Retired ──────────────────────────────────────────────
+  // Retire an app by adding `retired: true` to its entry in APPS — it leaves the
+  // Active grid and shows up under the Retired tab instead. Nothing is deleted,
+  // so un-retiring is just removing the flag.
+  const isRetired = (a) => a.retired === true;
+  const VIEWS = ['active', 'retired'];
+  let view = 'active';   // deliberately not persisted — the launcher always opens on Active
+
   // ── Sorting ──────────────────────────────────────────────────────────────
   const SORT_MODES = ['top', 'recent', 'name'];
   let sortMode = (() => {
@@ -675,7 +720,7 @@
   })();
 
   function sortedApps() {
-    const list = APPS.slice();
+    const list = APPS.filter(a => (view === 'retired') === isRetired(a));
     if (sortMode === 'name') {
       list.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
     } else if (sortMode === 'recent') {
@@ -715,10 +760,18 @@
   function render() {
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
-    for (const app of sortedApps()) {
+    const list = sortedApps();
+
+    const empty = document.getElementById('empty');
+    empty.textContent = list.length ? '' : (view === 'retired'
+      ? 'Nothing retired yet. Old apps land here when they are marked retired in index.html — they stay listed and openable, just out of the way.'
+      : 'No apps to show.');
+    empty.hidden = list.length > 0;
+
+    for (const app of list) {
       const hasUrl = !!(app.url && app.status === 'live');
       const node = document.createElement('div');
-      node.className = 'card' + (hasUrl ? '' : ' disabled');
+      node.className = 'card' + (hasUrl ? '' : ' disabled') + (isRetired(app) ? ' retired' : '');
       if (app.tint) node.style.setProperty('--name-color', nameColor(app.tint));
       node.title = app.desc || app.name;
       node.setAttribute('aria-label', app.name + (app.desc ? ' — ' + app.desc : ''));
@@ -729,7 +782,7 @@
         node.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openApp(app); }
         });
-        attachLongPress(node, app);
+        if (!isRetired(app)) attachLongPress(node, app);
       }
 
       const wrap = document.createElement('div');
@@ -746,7 +799,14 @@
       icon.appendChild(glyph);
       wrap.appendChild(icon);
 
-      if (app.status && app.status !== 'live') {
+      // Retired wins the chip slot — in the Retired tab that's the useful label,
+      // and a retired app's old wip/soon status no longer tells you anything.
+      if (isRetired(app)) {
+        const status = document.createElement('span');
+        status.className = 'status retired';
+        status.textContent = 'Retired';
+        wrap.appendChild(status);
+      } else if (app.status && app.status !== 'live') {
         const status = document.createElement('span');
         status.className = 'status ' + app.status;
         status.textContent = STATUS_LABEL[app.status] || 'Coming soon';
@@ -763,9 +823,10 @@
         wrap.appendChild(btn);
       }
 
-      // Pin badge sits where the status chip would be — live tiles only, so the
-      // two never collide.
-      if (hasUrl) {
+      // Pin badge sits where the status chip would be, so only one may ever be
+      // rendered per tile. Retired tiles always show the RETIRED chip and are
+      // never pinnable — pins only drive the Active "Top" order.
+      if (hasUrl && !isRetired(app)) {
         const pin = document.createElement('button');
         pin.className = 'pin-btn' + (isPinned(app.name) ? ' pinned' : '');
         pin.innerHTML = ICON_PIN;
@@ -834,7 +895,7 @@
       b.setAttribute('aria-selected', String(on));
     });
     const hint = document.getElementById('hint');
-    if (sortMode === 'top') {
+    if (sortMode === 'top' && view === 'active') {
       const used = Object.keys(usage).length;
       hint.textContent = used
         ? 'Ordered by what you open most · long-press (or right-click) a tile to pin it'
@@ -846,9 +907,30 @@
     render();
   }
 
+  function setView(next) {
+    view = VIEWS.indexOf(next) !== -1 ? next : 'active';
+    document.querySelectorAll('#view button').forEach(b => {
+      const on = b.dataset.view === view;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', String(on));
+    });
+    setSort(sortMode);   // re-applies the hint for this view and re-renders
+  }
+
+  function refreshRetiredCount() {
+    const n = APPS.filter(isRetired).length;
+    const badge = document.getElementById('retired-count');
+    badge.textContent = String(n);
+    badge.hidden = n === 0;
+  }
+
   document.querySelectorAll('#sort button').forEach(b =>
     b.addEventListener('click', () => setSort(b.dataset.sort)));
-  setSort(sortMode);
+  document.querySelectorAll('#view button').forEach(b =>
+    b.addEventListener('click', () => setView(b.dataset.view)));
+
+  refreshRetiredCount();
+  setView(view);
 
   document.getElementById('reset-usage').addEventListener('click', (e) => {
     e.preventDefault();
